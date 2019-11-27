@@ -26,4 +26,13 @@
         android:textColor="#868585"
         android:textSize="10sp" />
 
+
+    <TextView
+        android:id="@+id/counterText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="0 of 0" />
+
 </RelativeLayout>

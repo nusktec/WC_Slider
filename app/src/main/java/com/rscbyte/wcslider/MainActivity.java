@@ -3,20 +3,25 @@ package com.rscbyte.wcslider;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
             imageFiles.add(file.getAbsolutePath());
         }
         //fire function to load images
-        sliderHere();
         init_component();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -51,42 +55,54 @@ public class MainActivity extends AppCompatActivity {
             final Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         }
-
+        sliderHere();
     }
 
     private int _start = 0;
     private int _end = 0;
     private Handler handler = new Handler();
 
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            if (imageFiles.size() > 0) {
-                _end = imageFiles.size() - 1;
 
-                File imgFile = new File(imageFiles.get(_start));
+    void sliderTicks() {
+        ((TextView) findViewById(R.id.counterText)).setText(_start + " of " + (imageFiles.size() - 1));
+        if (imageFiles.size() > 0) {
+            _end = imageFiles.size() - 1;
 
-                if (imgFile.exists()) {
+            File imgFile = new File(imageFiles.get(_start));
 
-                    Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            if (imgFile.exists()) {
 
-                    ImageView myImage = findViewById(R.id.img);
+                //Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                    myImage.setImageBitmap(myBitmap);
+                ImageView myImage = findViewById(R.id.img);
 
-                }
+                myImage.setImageURI(Uri.parse(imgFile.getAbsolutePath()));
+
                 _start++;
                 if (_start > _end) {
                     _start = 0;
                 }
-                handler.postDelayed(runnable, _interval);
             }
         }
-    };
+    }
+
 
     //loop images
+    int c = 0;
+
     void sliderHere() {
-        handler.postDelayed(runnable, 1000);
+        //handler.postDelayed(runnable, 1000);
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        sliderTicks();
+                    }
+                });
+            }
+        }, 0, _interval);
     }
 
     //main controller
@@ -102,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        init();
+        _interval = getSharedPreferences(Settings._sPreference, MODE_PRIVATE).getInt(Settings._sPreference, 5000);
+        //init();
     }
 }
