@@ -1,5 +1,6 @@
 package com.rscbyte.wcslider;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
@@ -32,7 +34,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
+        try {
+            init();
+        } catch (Exception ex) {
+            //print logs
+            Log.e("Errrrrrrrr", ex.getMessage());
+            //say the fact
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("Warning !");
+            dialog.setMessage("No image file(s) in the wc_slider folder at the root");
+            dialog.setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.create().show();
+        }
     }
 
     void init() {
